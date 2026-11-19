@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LKPD Interaktif Informatika Kelas IV - SD Kristen Lentera Ambarawa</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Fredoka', 'sans-serif'],
+          },
+          colors: {
+            skybrand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+            },
+            sunbrand: {
+              100: '#fef9c3',
+              300: '#fde047',
+              400: '#facc15',
+              500: '#eab308',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #f0f9ff;
+      background-image: radial-gradient(#bae6fd 1.2px, transparent 1.2px);
+      background-size: 24px 24px;
+    }
+    .font-display {
+      font-family: 'Fredoka', sans-serif;
+    }
+    @keyframes floatStickman {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-6px) rotate(2deg); }
+    }
+    .animate-float {
+      animation: floatStickman 3.5s ease-in-out infinite;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; }
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Toast / Custom Notification Box -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Header Sekolah -->
+  <header class="bg-gradient-to-r from-skybrand-700 via-skybrand-600 to-skybrand-700 text-white shadow-lg border-b-4 border-sunbrand-400">
+    <div class="max-w-6xl mx-auto px-4 py-5 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-4 text-center md:text-left">
+        <!-- Logo Sekolah SVG -->
+        <div class="w-16 h-16 rounded-2xl bg-white p-2 shadow-md flex-shrink-0 flex items-center justify-center">
+          <svg viewBox="0 0 64 64" class="w-12 h-12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="24" r="16" fill="#0f172a"/>
+            <path d="M32 11C32 11 26 19 26 24C26 27.3137 28.6863 30 32 30C35.3137 30 38 27.3137 38 24C38 19 32 11 32 11Z" fill="#f59e0b"/>
+            <path d="M32 16C32 16 29 20.5 29 23.5C29 25.1569 30.3431 26.5 32 26.5C33.6569 26.5 35 25.1569 35 23.5C35 20.5 32 16 32 16Z" fill="#fef08a"/>
+            <path d="M12 44C20 40 28 43 32 47C36 43 44 40 52 44V52C44 48 36 51 32 55C28 51 20 48 12 52V44Z" fill="#b45309"/>
+            <path d="M14 42C21 38 28 41 32 45C36 41 43 38 50 42V49C43 45 36 48 32 52C28 48 21 45 14 49V42Z" fill="#facc15"/>
+          </svg>
+        </div>
+        <div>
+          <span class="inline-block px-3 py-0.5 rounded-full bg-sunbrand-400 text-skybrand-900 font-bold text-xs tracking-wider uppercase mb-1">
+            Asesmen Sumatif & LKPD Digital • TP 2026 / 2027
+          </span>
+          <h1 class="font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">
+            SD KRISTEN LENTERA AMBARAWA
+          </h1>
+          <p class="text-sky-100 text-xs sm:text-sm italic">
+            "Menjadi sekolah terkemuka, unggul dalam iman – karakter dan iptek. Berprestasi, cerdas-mandiri di era global dan berpijak pada budaya bangsa"
+          </p>
+        </div>
+      </div>
+
+      <!-- Mode Switcher Tabs -->
+      <div class="no-print flex bg-skybrand-800/70 p-1.5 rounded-2xl border border-skybrand-500/40 shadow-inner">
+        <button id="tab-btn-student" onclick="switchMode('student')"
+          class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-display font-semibold text-sm transition-all bg-sunbrand-400 text-skybrand-900 shadow">
+          <span>✏️</span> Kerjakan LKPD
+        </button>
+        <button id="tab-btn-teacher" onclick="switchMode('teacher')"
+          class="flex items-center gap-2 px-4 py-2.5 rounded-xl font-display font-semibold text-sm transition-all text-white hover:bg-skybrand-700">
+          <span>👩‍🏫</span> Dashboard Guru
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-grow max-w-5xl w-full mx-auto px-4 py-6 sm:py-8">
+
+    <!-- ==================== VIEW 1: SISWA ==================== -->
+    <section id="view-student" class="space-y-6">
+
+      <!-- Banner Mata Pelajaran & Ilustrasi Pivot Stickman -->
+      <div class="bg-white rounded-3xl shadow-md border-2 border-sky-100 p-5 sm:p-7 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="space-y-2 text-center md:text-left">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-100 text-skybrand-700 font-semibold text-xs">
+            <span>💻 Mata Pelajaran: Informatika</span>
+            <span>•</span>
+            <span>Kelas IV (4A / 4B)</span>
+          </div>
+          <h2 class="font-display text-2xl sm:text-3xl font-bold text-slate-800">
+            Animasi & Pivot Stickfigure Animator v5
+          </h2>
+          <p class="text-slate-600 text-sm sm:text-base max-w-xl">
+            Halo anak-anak hebat! Isi identitasmu dengan lengkap, lalu kerjakan seluruh soal di bawah ini dengan teliti. Setelah selesai, klik <strong>Kirim Jawaban & Lihat Nilai</strong>!
+          </p>
+          <div class="flex flex-wrap justify-center md:justify-start gap-2 pt-1 text-xs font-medium">
+            <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200">I. 20 Pilihan Ganda (40%)</span>
+            <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200">II. 10 Isian Singkat (30%)</span>
+            <span class="px-2.5 py-1 rounded-lg bg-purple-50 text-purple-800 border border-purple-200">III. 5 Uraian Kreatif (30%)</span>
+          </div>
+        </div>
+
+        <!-- Ilustrasi Pivot Stickman dengan Titik Oranye & Merah -->
+        <div class="flex-shrink-0 bg-sky-50 border-2 border-dashed border-sky-300 rounded-2xl p-4 flex flex-col items-center animate-float">
+          <svg width="130" height="130" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+            <!-- Kepala -->
+            <circle cx="70" cy="26" r="13" fill="#1e293b"/>
+            <!-- Badan -->
+            <line x1="70" y1="39" x2="70" y2="78" stroke="#1e293b" stroke-width="6" stroke-linecap="round"/>
+            <!-- Tangan Kiri (Melambai) -->
+            <line x1="70" y1="48" x2="45" y2="35" stroke="#1e293b" stroke-width="5" stroke-linecap="round"/>
+            <line x1="45" y1="35" x2="32" y2="18" stroke="#1e293b" stroke-width="5" stroke-linecap="round"/>
+            <!-- Tangan Kanan -->
+            <line x1="70" y1="48" x2="95" y2="60" stroke="#1e293b" stroke-width="5" stroke-linecap="round"/>
+            <line x1="95" y1="60" x2="108" y2="48" stroke="#1e293b" stroke-width="5" stroke-linecap="round"/>
+            <!-- Kaki Kiri -->
+            <line x1="70" y1="78" x2="52" y2="104" stroke="#1e293b" stroke-width="6" stroke-linecap="round"/>
+            <line x1="52" y1="104" x2="42" y2="128" stroke="#1e293b" stroke-width="6" stroke-linecap="round"/>
+            <!-- Kaki Kanan -->
+            <line x1="70" y1="78" x2="90" y2="102" stroke="#1e293b" stroke-width="6" stroke-linecap="round"/>
+            <line x1="90" y1="102" x2="104" y2="124" stroke="#1e293b" stroke-width="6" stroke-linecap="round"/>
+
+            <!-- Titik Oranye (Pusat Gerak) -->
+            <circle cx="70" cy="78" r="5.5" fill="#f97316" stroke="#ffffff" stroke-width="1.5"/>
+            <!-- Titik-Titik Merah (Sendi) -->
+            <circle cx="70" cy="39" r="4.5" fill="#ef4444" stroke="#ffffff" stroke-width="1.2"/>
+            <circle cx="45" cy="35" r="4.5" fill="#ef4444" stroke="#ffffff" stroke-width="1.2"/>
+            <circle cx="32" cy="18" r="4.5" fill="#ef4444" stroke="#ffffff" stroke-width="1.2"/>
+            <circle cx="95" cy="60" r="4.5" fill="#ef4444" stroke="#ffffff" stroke-width="1.2"/>
+            <circle cx="108" cy="48" r="4.5" fill="#ef4444" stroke="#ffffff" stroke-width="1.2"/>
+            <circle cx="52" cy="104" r="4.5" fill="#ef4444" stroke="#ffffff" stroke-width="1.2"/>
+            <circle cx="42" cy="128" r="4.5" fill="#ef4444" stroke="#ffffff" stroke-width="1.2"/>
+            <circle cx="90" cy="102" r="4.5" fill="#ef4444" stroke="#ffffff" stroke-width="1.2"/>
+            <circle cx="104" cy="124" r="4.5" fill="#ef4444" stroke="#ffffff" stroke-width="1.2"/>
+          </svg>
+          <div class="flex items-center gap-3 text-[11px] font-semibold mt-1">
+            <span class="flex items-center gap-1 text-orange-600"><span class="w-2.5 h-2.5 rounded-full bg-orange-500 inline-block"></span> Titik Oranye</span>
+            <span class="flex items-center gap-1 text-red-600"><span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span> Titik Merah</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Identitas Siswa -->
+      <div id="student-form-container" class="space-y-6">
+        <div class="bg-white rounded-3xl shadow-md border-2 border-sunbrand-300 p-5 sm:p-6">
+          <div class="flex items-center gap-2.5 mb-4">
+            <span class="w-8 h-8 rounded-xl bg-sunbrand-400 text-skybrand-900 font-display font-bold flex items-center justify-center">1</span>
+            <h3 class="font-display text-xl font-bold text-slate-800">Identitas Peserta Didik</h3>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label for="student-name" class="block text-sm font-semibold text-slate-700 mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
+              <input type="text" id="student-name" placeholder="Contoh: Budi Santoso"
+                class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-skybrand-500 focus:outline-none text-slate-800 font-medium" />
+            </div>
+            <div>
+              <label for="student-number" class="block text-sm font-semibold text-slate-700 mb-1">Nomor Absen <span class="text-red-500">*</span></label>
+              <input type="number" id="student-number" min="1" max="60" placeholder="Contoh: 05"
+                class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-skybrand-500 focus:outline-none text-slate-800 font-medium" />
+            </div>
+            <div>
+              <span class="block text-sm font-semibold text-slate-700 mb-1">Pilih Kelas <span class="text-red-500">*</span></span>
+              <div class="grid grid-cols-2 gap-2.5">
+                <label class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl border-2 border-slate-200 bg-white hover:border-skybrand-400 cursor-pointer transition font-display font-bold text-slate-700 has-[:checked]:border-skybrand-600 has-[:checked]:bg-sky-50 has-[:checked]:text-skybrand-800 shadow-sm">
+                  <input type="radio" name="student-class" value="4A" checked class="w-4 h-4 text-skybrand-600 focus:ring-skybrand-500" />
+                  <span>Kelas 4A</span>
+                </label>
+                <label class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl border-2 border-slate-200 bg-white hover:border-skybrand-400 cursor-pointer transition font-display font-bold text-slate-700 has-[:checked]:border-skybrand-600 has-[:checked]:bg-sky-50 has-[:checked]:text-skybrand-800 shadow-sm">
+                  <input type="radio" name="student-class" value="4B" class="w-4 h-4 text-skybrand-600 focus:ring-skybrand-500" />
+                  <span>Kelas 4B</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <!-- Progress Bar Pengerjaan -->
+          <div class="mt-5 pt-4 border-t border-slate-100">
+            <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1.5">
+              <span>Progres Pengerjaan Soal</span>
+              <span id="progress-text">0 / 35 Soal Terisi</span>
+            </div>
+            <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+              <div id="progress-bar" class="h-full bg-gradient-to-r from-skybrand-500 to-emerald-500 transition-all duration-300" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BAGIAN I: PILIHAN GANDA -->
+        <div class="bg-white rounded-3xl shadow-md border-2 border-sky-100 p-5 sm:p-7 space-y-5">
+          <div class="border-b-2 border-sky-100 pb-3">
+            <span class="inline-block px-3 py-1 rounded-lg bg-sky-100 text-skybrand-700 font-bold text-xs uppercase mb-1">Bagian I • Bobot 40%</span>
+            <h3 class="font-display text-xl sm:text-2xl font-bold text-slate-800">Pilihan Ganda (20 Soal)</h3>
+            <p class="text-slate-600 text-sm">Pilihlah salah satu jawaban A, B, C, atau D yang paling tepat!</p>
+          </div>
+          <div id="mc-questions-container" class="space-y-6"></div>
+        </div>
+
+        <!-- BAGIAN II: ISIAN SINGKAT -->
+        <div class="bg-white rounded-3xl shadow-md border-2 border-emerald-100 p-5 sm:p-7 space-y-5">
+          <div class="border-b-2 border-emerald-100 pb-3">
+            <span class="inline-block px-3 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-xs uppercase mb-1">Bagian II • Bobot 30%</span>
+            <h3 class="font-display text-xl sm:text-2xl font-bold text-slate-800">Isian Singkat (10 Soal)</h3>
+            <p class="text-slate-600 text-sm">Isilah titik-titik di bawah ini dengan jawaban singkat dan tepat!</p>
+          </div>
+          <div id="fill-questions-container" class="space-y-5"></div>
+        </div>
+
+        <!-- BAGIAN III: URAIAN KREATIF -->
+        <div class="bg-white rounded-3xl shadow-md border-2 border-purple-100 p-5 sm:p-7 space-y-5">
+          <div class="border-b-2 border-purple-100 pb-3">
+            <span class="inline-block px-3 py-1 rounded-lg bg-purple-100 text-purple-800 font-bold text-xs uppercase mb-1">Bagian III • Bobot 30%</span>
+            <h3 class="font-display text-xl sm:text-2xl font-bold text-slate-800">Uraian & Studi Kasus Kreatif (5 Soal)</h3>
+            <p class="text-slate-600 text-sm">Jawablah pertanyaan di bawah ini dengan penjelasan yang lengkap dan jelas!</p>
+          </div>
+          <div id="essay-questions-container" class="space-y-6"></div>
+        </div>
+
+        <!-- Tombol Submit -->
+        <div class="bg-gradient-to-r from-skybrand-600 to-skybrand-700 rounded-3xl p-6 text-white shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <h4 class="font-display text-lg sm:text-xl font-bold">Sudah selesai memeriksa semua jawaban?</h4>
+            <p class="text-sky-100 text-sm">Klik tombol di samping untuk mendapatkan nilai langsung dan mengirimkannya ke guru.</p>
+          </div>
+          <button id="submit-btn" onclick="submitLKPD()"
+            class="w-full sm:w-auto px-7 py-4 rounded-2xl bg-sunbrand-400 hover:bg-sunbrand-300 active:scale-95 text-skybrand-950 font-display font-bold text-base sm:text-lg shadow-md transition-all flex items-center justify-center gap-2">
+            <span>🚀</span> Kirim Jawaban & Lihat Nilai
+          </button>
+        </div>
+      </div>
+
+      <!-- ==================== KARTU HASIL / SERTIFIKAT MINI SISWA ==================== -->
+      <div id="student-result-container" class="hidden space-y-6">
+        <div class="bg-white rounded-3xl shadow-xl border-4 border-sunbrand-400 overflow-hidden">
+          <div class="bg-gradient-to-r from-skybrand-600 via-skybrand-500 to-emerald-500 p-6 sm:p-8 text-white text-center relative">
+            <div class="inline-block px-4 py-1 rounded-full bg-white/20 backdrop-blur-sm text-xs font-bold uppercase tracking-wider mb-2">
+              🎉 Selamat! LKPD Berhasil Dikirim
+            </div>
+            <h2 class="font-display text-2xl sm:text-4xl font-bold mb-1">Hasil Asesmen Informatika</h2>
+            <p class="text-sky-100 text-sm">SD Kristen Lentera Ambarawa • Kelas IV</p>
+          </div>
+
+          <div class="p-6 sm:p-8 space-y-6">
+            <!-- Identitas & Skor Utama -->
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 bg-sky-50 rounded-2xl p-5 border border-sky-200">
+              <div class="space-y-1 text-center md:text-left">
+                <p class="text-xs font-semibold text-slate-500 uppercase">Nama Peserta Didik</p>
+                <p id="res-name" class="font-display text-2xl font-bold text-slate-800">-</p>
+                <p id="res-meta" class="text-sm font-medium text-skybrand-700">No. Absen: - • Kelas: -</p>
+                <p id="res-save-status" class="text-xs font-semibold text-emerald-700 pt-1 flex items-center justify-center md:justify-start gap-1">
+                  <span>✅</span> Nilai sudah tersimpan otomatis di Dashboard Guru!
+                </p>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <div class="w-28 h-28 rounded-3xl bg-gradient-to-br from-sunbrand-300 to-sunbrand-400 border-4 border-white shadow-lg flex flex-col items-center justify-center text-skybrand-950">
+                  <span class="text-xs font-bold uppercase">Nilai Akhir</span>
+                  <span id="res-total-score" class="font-display text-4xl font-bold leading-none mt-1">0</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Rincian Per Bagian -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-center">
+                <p class="text-xs font-bold text-blue-700 uppercase">Bagian I: Pilihan Ganda</p>
+                <p id="res-mc-detail" class="font-display text-2xl font-bold text-slate-800 mt-1">0 / 20 Benar</p>
+                <p id="res-mc-points" class="text-xs font-semibold text-blue-600 mt-0.5">Skor: 0 / 40</p>
+              </div>
+              <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center">
+                <p class="text-xs font-bold text-emerald-700 uppercase">Bagian II: Isian Singkat</p>
+                <p id="res-fill-detail" class="font-display text-2xl font-bold text-slate-800 mt-1">0 / 10 Benar</p>
+                <p id="res-fill-points" class="text-xs font-semibold text-emerald-600 mt-0.5">Skor: 0 / 30</p>
+              </div>
+              <div class="p-4 rounded-2xl bg-purple-50 border border-purple-200 text-center">
+                <p class="text-xs font-bold text-purple-700 uppercase">Bagian III: Uraian Kreatif</p>
+                <p id="res-essay-detail" class="font-display text-2xl font-bold text-slate-800 mt-1">5 Soal</p>
+                <p id="res-essay-points" class="text-xs font-semibold text-purple-600 mt-0.5">Skor Awal: 0 / 30</p>
+              </div>
+            </div>
+
+            <!-- Pembahasan Ringkas -->
+            <div class="space-y-3">
+              <h3 class="font-display text-lg font-bold text-slate-800 flex items-center gap-2">
+                <span>📖</span> Pembahasan & Kunci Jawaban
+              </h3>
+              <div id="res-review-list" class="space-y-3 max-h-[450px] overflow-y-auto pr-2"></div>
+            </div>
+
+            <!-- Tombol Aksi -->
+            <div class="flex flex-wrap justify-center gap-3 pt-2 no-print">
+              <button onclick="window.print()" class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-sm flex items-center gap-2">
+                <span>🖨️</span> Cetak / Simpan PDF Hasil
+              </button>
+              <button onclick="resetForNewStudent()" class="px-5 py-3 rounded-xl bg-sky-100 hover:bg-sky-200 text-skybrand-800 font-semibold text-sm flex items-center gap-2">
+                <span>🔄</span> Kerjakan Ulang / Siswa Berikutnya
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ==================== VIEW 2: DASHBOARD GURU ==================== -->
+    <section id="view-teacher" class="hidden space-y-6">
+
+      <!-- Gate Login PIN Guru -->
+      <div id="teacher-login-box" class="max-w-md mx-auto bg-white rounded-3xl shadow-lg border-2 border-sky-200 p-6 sm:p-8 text-center space-y-4">
+        <div class="w-16 h-16 rounded-2xl bg-sky-100 text-skybrand-700 mx-auto flex items-center justify-center text-3xl">
+          🔐
+        </div>
+        <h2 class="font-display text-2xl font-bold text-slate-800">Akses Dashboard Guru</h2>
+        <p class="text-slate-600 text-sm">
+          Masukkan PIN Guru untuk melihat rekap nilai siswa secara real-time, mengoreksi uraian, dan mengunduh laporan CSV.
+        </p>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-xs text-amber-800 font-medium">
+          💡 Petunjuk PIN Default Guru: <strong>1234</strong>
+        </div>
+        <div class="space-y-3 pt-2">
+          <input type="password" id="teacher-pin-input" maxlength="8" placeholder="Masukkan PIN (1234)"
+            onkeydown="if(event.key==='Enter') verifyTeacherPin()"
+            class="w-full px-4 py-3 text-center tracking-widest text-xl font-bold rounded-xl border-2 border-slate-200 focus:border-skybrand-500 focus:outline-none" />
+          <button onclick="verifyTeacherPin()"
+            class="w-full py-3.5 rounded-xl bg-skybrand-600 hover:bg-skybrand-700 text-white font-display font-bold text-base shadow transition">
+            Masuk ke Dashboard Guru
+          </button>
+        </div>
+      </div>
+
+      <!-- Panel Utama Dashboard Guru -->
+      <div id="teacher-dashboard-panel" class="hidden space-y-6">
+        <!-- Header & Statistik -->
+        <div class="bg-white rounded-3xl shadow-md border-2 border-sky-100 p-5 sm:p-6">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-100">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-skybrand-600">Rekapitulasi Nilai Real-Time</span>
+              <h2 class="font-display text-2xl font-bold text-slate-800">Dashboard Nilai Informatika Kelas IV</h2>
+              <p class="text-xs text-slate-500 mt-0.5">SD Kristen Lentera Ambarawa • Tersinkronisasi Otomatis</p>
+            </div>
+            <div class="flex flex-wrap gap-2 no-print">
+              <button onclick="exportToCSV()"
+                class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm flex items-center gap-2 shadow-sm">
+                <span>📥</span> Unduh Excel / CSV
+              </button>
+              <button onclick="window.print()"
+                class="px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-800 text-white font-semibold text-sm flex items-center gap-2 shadow-sm">
+                <span>🖨️</span> Cetak Rekap
+              </button>
+              <button onclick="logoutTeacher()"
+                class="px-3.5 py-2.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-semibold text-sm">
+                Keluar
+              </button>
+            </div>
+          </div>
+
+          <!-- Kartu Ringkasan Statistik -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-5">
+            <div class="bg-sky-50 border border-sky-200 rounded-2xl p-4">
+              <p class="text-xs font-semibold text-skybrand-700">Total Siswa Masuk</p>
+              <p id="stat-total-students" class="font-display text-2xl sm:text-3xl font-bold text-slate-800 mt-1">0</p>
+            </div>
+            <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
+              <p class="text-xs font-semibold text-emerald-700">Rata-Rata Nilai</p>
+              <p id="stat-avg-score" class="font-display text-2xl sm:text-3xl font-bold text-slate-800 mt-1">0</p>
+            </div>
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+              <p class="text-xs font-semibold text-amber-700">Nilai Tertinggi</p>
+              <p id="stat-max-score" class="font-display text-2xl sm:text-3xl font-bold text-slate-800 mt-1">0</p>
+            </div>
+            <div class="bg-purple-50 border border-purple-200 rounded-2xl p-4">
+              <p class="text-xs font-semibold text-purple-700">Tuntas (≥ 75)</p>
+              <p id="stat-passed-count" class="font-display text-2xl sm:text-3xl font-bold text-slate-800 mt-1">0</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter & Pencarian -->
+        <div class="bg-white rounded-3xl shadow-md border-2 border-sky-100 p-5 sm:p-6 space-y-4">
+          <div class="flex flex-col sm:flex-row gap-3 justify-between no-print">
+            <div class="flex-grow">
+              <input type="text" id="teacher-search" oninput="renderTeacherTable()"
+                placeholder="🔍 Cari nama siswa atau nomor absen..."
+                class="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:border-skybrand-500 focus:outline-none text-sm" />
+            </div>
+            <select id="teacher-filter-class" onchange="renderTeacherTable()"
+              class="px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:border-skybrand-500 focus:outline-none text-sm bg-white font-medium">
+              <option value="ALL">Semua Kelas (4A & 4B)</option>
+              <option value="4A">Kelas 4A</option>
+              <option value="4B">Kelas 4B</option>
+            </select>
+          </div>
+
+          <!-- Tabel Daftar Nilai Siswa -->
+          <div class="overflow-x-auto rounded-2xl border border-slate-200">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="bg-skybrand-700 text-white font-display">
+                  <th class="p-3.5">No. Absen</th>
+                  <th class="p-3.5">Nama Siswa</th>
+                  <th class="p-3.5">Kelas</th>
+                  <th class="p-3.5 text-center">PG (40)</th>
+                  <th class="p-3.5 text-center">Isian (30)</th>
+                  <th class="p-3.5 text-center">Uraian (30)</th>
+                  <th class="p-3.5 text-center">Nilai Akhir</th>
+                  <th class="p-3.5 text-center no-print">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="teacher-table-body" class="divide-y divide-slate-200 bg-white">
+                <tr>
+                  <td colspan="8" class="p-8 text-center text-slate-500">Memuat data siswa...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal Detail Jawaban & Koreksi Skor Uraian Guru -->
+  <div id="detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border-2 border-sky-200">
+      <div class="bg-skybrand-700 text-white px-6 py-4 flex items-center justify-between">
+        <div>
+          <h3 id="modal-student-title" class="font-display text-xl font-bold">Detail Jawaban Siswa</h3>
+          <p id="modal-student-sub" class="text-xs text-sky-100">Koreksi & Penyesuaian Skor Uraian</p>
+        </div>
+        <button onclick="closeDetailModal()" class="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center font-bold">✕</button>
+      </div>
+
+      <div id="modal-body-content" class="p-6 overflow-y-auto space-y-5 flex-grow"></div>
+
+      <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        <div class="text-sm font-semibold text-slate-700">
+          Total Nilai Terhitung: <span id="modal-live-total" class="font-display text-xl text-skybrand-700 font-bold">0</span> / 100
+        </div>
+        <div class="flex gap-2">
+          <button onclick="closeDetailModal()" class="px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold text-sm">
+            Tutup
+          </button>
+          <button onclick="saveTeacherCorrection()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow">
+            💾 Simpan Perubahan Nilai
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-sky-100 py-4 text-center text-xs text-slate-500 mt-10 no-print">
+    <p>© 2026/2027 SD Kristen Lentera Ambarawa • LKPD Interaktif Informatika Kelas IV (Pivot Stickfigure Animator v5)</p>
+  </footer>
+
+  <!-- ==================== SCRIPT UTAMA & FIREBASE ==================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // ==================== BANK SOAL LENGKAP DARI DOKUMEN '4 ICT.docx' ====================
+    const mcQuestions = [
+      {
+        id: 1,
+        q: "Pengisi suara dalam film animasi adalah … .",
+        options: ["animator", "dubber / voice actor", "illustrator", "sutradara"],
+        answer: 1,
+        explanation: "Dubber atau voice actor adalah orang yang bertugas mengisi suara tokoh dalam film animasi."
+      },
+      {
+        id: 2,
+        q: "Orang yang bertugas untuk menggerakkan gambar yang telah dibuat oleh illustrator adalah … .",
+        options: ["editor", "animator", "kameramen", "produser"],
+        answer: 1,
+        explanation: "Animator adalah orang yang menciptakan rangkaian gerakan sehingga gambar tampak hidup."
+      },
+      {
+        id: 3,
+        q: "Film Up dan Upin-Ipin merupakan contoh animasi … .",
+        options: ["1 Dimensi (1D)", "2 Dimensi (2D)", "3 Dimensi (3D)", "Stop Motion"],
+        answer: 2,
+        explanation: "Film Up dan Upin-Ipin dibuat menggunakan pemodelan ruang 3 Dimensi (3D)."
+      },
+      {
+        id: 4,
+        q: "Animasi berasal dari kata Animate / Anime yang berarti … .",
+        options: ["menghidupkan atau menggerakkan", "menggambar atau melukis", "menulis cerita", "merekam suara"],
+        answer: 0,
+        explanation: "Kata 'animate' berarti menghidupkan atau menggerakkan benda/gambar diam."
+      },
+      {
+        id: 5,
+        q: "Objek yang digerakkan dalam aplikasi Pivot Stickfigure Animator namanya … .",
+        options: ["sprite", "figure", "layer", "canvas"],
+        answer: 1,
+        explanation: "Dalam aplikasi Pivot Stickfigure Animator, objek karakter yang digerakkan disebut Figure."
+      },
+      {
+        id: 6,
+        q: "Untuk mengatur besar kecilnya figure menggunakan … .",
+        options: ["copy figure", "duplicate figure", "delete figure", "figure scale"],
+        answer: 3,
+        explanation: "Figure Scale berfungsi untuk memperbesar atau memperkecil ukuran karakter figure."
+      },
+      {
+        id: 7,
+        q: "Untuk mengatur ukuran background kertas dengan … .",
+        options: ["edit option, animation setting", "edit option preferences", "file-save animation", "file-export animation"],
+        answer: 0,
+        explanation: "Ukuran area kerja (lebar dan tinggi kertas animasi) diatur melalui Edit -> Options (Animation Settings)."
+      },
+      {
+        id: 8,
+        q: "Untuk mengganti kertas background putih menjadi warna gradasi adalah … .",
+        options: ["file-save animation", "file-export animation", "file-load sprite image", "file-set background colour"],
+        answer: 3,
+        explanation: "Menu File -> Set Background Colour digunakan untuk mengatur warna latar belakang (polos maupun gradasi)."
+      },
+      {
+        id: 9,
+        q: "Untuk menyimpan proyek pivot jika kita akan mengeditnya lagi pada waktu yang berbeda adalah … .",
+        options: ["file-save animation-piv", "file-export animation-gif", "file-load sprite image", "file-load background"],
+        answer: 0,
+        explanation: "Menyimpan file proyek berformat .PIV (File -> Save Animation) memungkinkan proyek dibuka dan diedit kembali."
+      },
+      {
+        id: 10,
+        q: "Untuk menyimpan proyek pivot dalam bentuk animasi video singkat dengan … .",
+        options: ["file-save animation-piv", "file-export animation-gif", "file-load sprite image", "file-load background"],
+        answer: 1,
+        explanation: "File -> Export Animation mengekspor animasi menjadi format gambar bergerak (.GIF) atau video."
+      },
+      {
+        id: 11,
+        q: "Mengubah warna karakter figur pada Pivot Animator menggunakan fitur / tombol … .",
+        options: ["figure color", "background color", "paint bucket", "color palette"],
+        answer: 0,
+        explanation: "Tombol Figure Color digunakan untuk mengganti warna karakter stickman/figure."
+      },
+      {
+        id: 12,
+        q: "Untuk menggerakkan seluruh tubuh figur secara utuh, kita dapat mengklik dan menggeser titik berwarna … .",
+        options: ["merah", "orange", "biru", "hijau"],
+        answer: 1,
+        explanation: "Titik berwarna oranye adalah titik pusat (origin) untuk memindahkan posisi seluruh tubuh figur."
+      },
+      {
+        id: 13,
+        q: "Perintah untuk menambahkan figur bawaan yang sudah ada pada Pivot (seperti gajah, orang bertopi, dll) menggunakan menu … .",
+        options: ["add figure", "edit -> options", "file -> create figure type", "file -> load figure type"],
+        answer: 3,
+        explanation: "Menu File -> Load Figure Type digunakan untuk memuat karakter bawaan lain (gajah, kuda, cowboy, dll)."
+      },
+      {
+        id: 14,
+        q: "Kita dapat menggambar sendiri tipe figur baru (contohnya bola). Hal ini dilakukan melalui menu … .",
+        options: ["file -> create figure type", "file -> open", "edit -> options", "tools -> option"],
+        answer: 0,
+        explanation: "File -> Create Figure Type membuka jendela Figure Builder untuk membuat bentuk figur baru."
+      },
+      {
+        id: 15,
+        q: "Ekstensi file standar untuk proyek aplikasi Pivot Animator adalah … .",
+        options: [".PIV", ".EXE", ".DOCX", ".PPTX"],
+        answer: 0,
+        explanation: "Format file proyek standar Pivot Animator adalah .PIV."
+      },
+      {
+        id: 16,
+        q: "Menyimpan/mengekspor hasil animasi Pivot dalam bentuk gambar bergerak (.gif) menggunakan menu … .",
+        options: ["File -> Export Animation", "File -> Save Project", "Edit -> Convert", "File -> Load Animation"],
+        answer: 0,
+        explanation: "File -> Export Animation mengubah rangkaian frame menjadi gambar bergerak .GIF."
+      },
+      {
+        id: 17,
+        q: "Seorang siswa ingin membuat animasi karakter yang melompat dari kiri ke kanan layar. Pada frame ke-5, gerakan karakter terlihat sangat kaku, melayang di udara, dan tidak tampak realistis. Langkah perbaikan yang paling tepat untuk menghasilkan efek gerakan lompatan yang luwes dan dinamis adalah … .",
+        options: [
+          "mengubah warna background menjadi gelap dan memperbesar ukuran karakter pada frame ke-5.",
+          "menambahkan frames dengan mengatur posisi sendi",
+          "mengklik tombol play dengan mengubah nilai fps ke angka paling maksimum tanpa mengubah posisi figur.",
+          "menghapus figur awal dan menggantinya dengan figur objek lain yang memiliki handle lebih sedikit."
+        ],
+        answer: 1,
+        explanation: "Gerakan yang halus dan realistis dihasilkan dengan menambahkan frame perantara serta mengatur tekukan sendi tangan dan kaki."
+      },
+      {
+        id: 18,
+        q: "Budi ingin membuat animasi robot yang melompat tinggi. Saat dicoba diputar (Play), gerakan robotnya terlihat aneh karena langsung meloncat dari bawah ke atas hanya dalam 2 gambar (frame). Gerakannya jadi terlalu cepat dan kaku. Yang harus Budi lakukan agar gerakan melompat robotnya terlihat lebih halus dan luwes adalah … .",
+        options: [
+          "menghapus robot tersebut dan menggantinya dengan gambar hewan",
+          "menambahkan beberapa frame baru di antara posisi bawah dan atas sambil menggerakkan kaki robot sedikit demi sedikit",
+          "mengubah warna robot menjadi kuning terang agar terlihat lebih cepat",
+          "memperbesar ukuran layar kerja (canvas) menjadi sangat luas"
+        ],
+        answer: 1,
+        explanation: "Menambahkan frame transisi di antara posisi awal dan akhir dengan perubahan gerak bertahap membuat animasi mulus."
+      },
+      {
+        id: 19,
+        q: "Siti dan Doni mendapat tugas membuat animasi anak memegang bola lalu melemparnya. Siti menggambar orang dan bola menyatu jadi satu karakter sejak awal. Doni menggambar orang dan bola secara terpisah, lalu menempelkan bolanya di tangan karakter saat di layar kerja. Saat animasi sampai di bagian 'melempar bola ke udara', cara yang lebih mudah untuk digerakkan adalah … .",
+        options: [
+          "cara Siti, karena bola dan orang tidak akan pernah lepas",
+          "cara Doni, karena bola bisa dilepas dan digerakkan melayang di udara tanpa mengganggu badan orangnya",
+          "cara Siti, karena bolanya bisa berubah warna sendiri saat dilempar",
+          "cara Doni dan Siti sama-sama tidak bisa digunakan untuk melempar bola"
+        ],
+        answer: 1,
+        explanation: "Membuat orang dan bola sebagai dua figur terpisah memudahkan bola dilepas dan dilempar ke udara."
+      },
+      {
+        id: 20,
+        q: "Dono ingin membuat animasi pemandangan rumah di malam hari. Ia ingin ada karakter orang (stickman) yang berjalan di depan rumah tersebut. Langkah yang tepat dilakukan Dono di aplikasi Pivot adalah … .",
+        options: [
+          "Gambar rumah dimasukkan sebagai Background (latar belakang), lalu orangnya dimasukkan sebagai Figure (karakter)",
+          "Gambar orang dimasukkan sebagai Background, lalu gambar rumah dijadikan Figure",
+          "Rumah dan orang digambar bersamaan di kertas karton lalu difoto memakai kamera HP",
+          "Menghapus aplikasi Pivot dan menggantinya dengan program mengetik"
+        ],
+        answer: 0,
+        explanation: "Pemandangan diam (rumah) dijadikan Background, sedangkan karakter yang bergerak (orang) dijadikan Figure."
+      }
+    ];
+
+    const fillQuestions = [
+      {
+        id: 1,
+        q: "Animasi berasal dari kata Anime yang berarti … .",
+        keywords: ["menghidupkan", "menggerakkan", "hidup", "gerak"],
+        sampleAnswer: "menghidupkan / menggerakkan"
+      },
+      {
+        id: 2,
+        q: "Objek yang digerakkan dalam pivot namanya … .",
+        keywords: ["figure", "figur", "stickfigure", "stickman"],
+        sampleAnswer: "Figure"
+      },
+      {
+        id: 3,
+        q: "Bagian pivot pada gambar di samping, kertas-kertas ini disebut … .",
+        illustration: "timeline",
+        keywords: ["frame", "frames", "timeline"],
+        sampleAnswer: "Frame (Timeline)"
+      },
+      {
+        id: 4,
+        q: "Menghapus figur dengan cara klik figur dan tekan tombol … .",
+        keywords: ["delete", "del", "delete figure", "silang", "x"],
+        sampleAnswer: "Delete / Delete Figure"
+      },
+      {
+        id: 5,
+        q: "Tombol Add Figure di samping digunakan untuk … .",
+        illustration: "addfigure",
+        keywords: ["menambah", "menambahkan", "memunculkan", "figur", "figure", "karakter", "orang"],
+        sampleAnswer: "menambahkan figur / karakter baru ke layar"
+      },
+      {
+        id: 6,
+        q: "Tombol untuk menjalankan animasi pivot adalah … .",
+        keywords: ["play"],
+        sampleAnswer: "Play"
+      },
+      {
+        id: 7,
+        q: "Tombol untuk menghentikan animasi pivot adalah … .",
+        keywords: ["stop"],
+        sampleAnswer: "Stop"
+      },
+      {
+        id: 8,
+        q: "Untuk menggambar sendiri figure dengan menu … .",
+        keywords: ["create figure", "create", "figure type"],
+        sampleAnswer: "File -> Create Figure Type"
+      },
+      {
+        id: 9,
+        q: "Untuk mengeluarkan/menambahkan figure ke dalam kertas menggunakan menu/tombol … .",
+        keywords: ["add figure", "load figure", "add", "load"],
+        sampleAnswer: "Add Figure / Load Figure Type"
+      },
+      {
+        id: 10,
+        q: "Menyimpan pivot agar dapat diedit lagi dengan menu … .",
+        keywords: ["save animation", "save", "piv"],
+        sampleAnswer: "File -> Save Animation (.piv)"
+      }
+    ];
+
+    const essayQuestions = [
+      {
+        id: 1,
+        q: "Kamu membuat animasi stickman melompat. Kamu sudah membuat frame 1: stickman jongkok, dan frame 2: stickman di atas. Saat tombol Play ditekan, stickman terlihat langsung ke atas, tidak seperti melompat. Mengapa gerakan stickman jadi seperti itu? Apa yang harus kamu tambahkan agar lompatannya terlihat halus dan nyata? Jelaskan langkahnya!",
+        keywords: ["frame", "sedikit", "sendi", "antara", "transisi", "halus", "bertahap", "next frame"],
+        rubric: "Karena hanya ada 2 frame tanpa gerakan perantara (jaraknya terlalu jauh). Solusinya: tambahkan beberapa frame di antara posisi jongkok dan di atas, lalu gerakkan titik oranye dan tekuk sendi merah sedikit demi sedikit sebelum menekan Next Frame."
+      },
+      {
+        id: 2,
+        q: "Jelaskan perbedaan titik orange dan titik merah pada PIVOT v5 !",
+        keywords: ["orange", "oranye", "seluruh", "pindah", "semua", "merah", "sendi", "bagian", "tangan", "kaki"],
+        rubric: "Titik Oranye berfungsi untuk menggerakkan atau memindahkan seluruh tubuh figur secara utuh. Titik Merah berfungsi untuk menggerakkan bagian sendi/anggota tubuh tertentu (seperti tangan, kaki, atau kepala)."
+      },
+      {
+        id: 3,
+        q: "Jelaskan perbedaan .PIV dan .GIF saat menyimpan !",
+        keywords: ["piv", "edit", "proyek", "project", "gif", "gambar", "bergerak", "ekspor", "export", "jadi"],
+        rubric: ".PIV adalah file proyek mentah Pivot Animator yang masih bisa dibuka dan diedit kembali. Sedangkan .GIF adalah hasil ekspor animasi berupa gambar bergerak yang sudah jadi dan siap ditonton/dibagikan."
+      },
+      {
+        id: 4,
+        q: "Kamu diminta membuat animasi pendek di PIVOT v5 dengan cerita 'Daud dan Goliat'. Ceritakan idemu:\na. Berapa figur yang akan digunakan, dan jelaskan perannya siapa saja!\nb. Fitur apa di PIVOT v5 yang paling membantu kamu agar gerakan tangan stickman bisa memegang benda?",
+        keywords: ["daud", "goliat", "ketapel", "batu", "join", "menempelkan", "scale", "figure", "figur"],
+        rubric: "a. Menggunakan 3–4 figur: Daud (figur kecil), Goliat (figur besar menggunakan Figure Scale), serta figur ketapel dan batu.\nb. Fitur Join/Unjoin (menempelkan objek ke titik sendi tangan) dan Create/Load Figure Type."
+      },
+      {
+        id: 5,
+        q: "Kamu diminta membuat animasi pendek di PIVOT v5 dengan cerita 'Yesus naik keledai masuk ke kota Yerusalem'. Ceritakan idemu:\na. Berapa figur yang akan digunakan, dan jelaskan perannya siapa saja!\nb. Fitur apa di PIVOT v5 yang paling membantu kamu agar Peran Yesus dapat naik keledai?",
+        keywords: ["yesus", "keledai", "orang", "join", "menempelkan", "gabung", "load", "background"],
+        rubric: "a. Menggunakan minimal 3–5 figur: figur Yesus, figur Keledai (dari Load Figure Type), dan beberapa figur warga Yerusalem yang melambaikan daun palem.\nb. Fitur Join (menempelkan titik oranye figur Yesus ke titik punggung figur keledai agar bergerak bersama)."
+      }
+    ];
+
+    // ==================== STATE APLIKASI & FIREBASE ====================
+    let db = null;
+    let auth = null;
+    let currentUser = null;
+    let appId = typeof __app_id !== 'undefined' ? __app_id : 'sd-lentera-ict4-lkpd';
+    let submissionsList = [];
+    let isTeacherLoggedIn = false;
+    let activeEditDocId = null;
+
+    // Inisialisasi Firebase dengan error handling lengkap
+    async function initFirebase() {
+      try {
+        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+          const firebaseConfig = JSON.parse(__firebase_config);
+          const app = initializeApp(firebaseConfig);
+          auth = getAuth(app);
+          db = getFirestore(app);
+
+          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            await signInWithCustomToken(auth, __initial_auth_token);
+          } else {
+            await signInAnonymously(auth);
+          }
+
+          onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+              subscribeSubmissions();
+            }
+          });
+        } else {
+          console.warn("Konfigurasi Firebase tidak ditemukan, berjalan dalam mode memori lokal.");
+        }
+      } catch (err) {
+        console.error("Gagal inisialisasi Firebase:", err);
+      }
+    }
+
+    // Berlangganan data nilai siswa secara real-time dari Firestore
+    function subscribeSubmissions() {
+      if (!db || !currentUser) return;
+      const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'lkpd_submissions');
+      onSnapshot(
+        colRef,
+        (snapshot) => {
+          const items = [];
+          snapshot.forEach((docSnap) => {
+            items.push({ id: docSnap.id, ...docSnap.data() });
+          });
+          // Urutkan berdasarkan nomor absen / waktu kirim di memori
+          items.sort((a, b) => {
+            const numA = parseInt(a.studentNumber, 10) || 999;
+            const numB = parseInt(b.studentNumber, 10) || 999;
+            return numA - numB;
+          });
+          submissionsList = items;
+          if (isTeacherLoggedIn) {
+            renderTeacherTable();
+          }
+        },
+        (error) => {
+          console.error("Error membaca data nilai:", error);
+          showToast("Gagal menyinkronkan data dari server.", "error");
+        }
+      );
+    }
+
+    // ==================== RENDER SOAL KE UI ====================
+    function renderAllQuestions() {
+      // 1. Render Pilihan Ganda
+      const mcContainer = document.getElementById('mc-questions-container');
+      const letters = ['A', 'B', 'C', 'D'];
+      mcContainer.innerHTML = mcQuestions.map((item, idx) => `
+        <div class="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200 hover:border-sky-300 transition">
+          <div class="flex gap-3">
+            <span class="w-8 h-8 rounded-xl bg-skybrand-600 text-white font-display font-bold text-sm flex items-center justify-center flex-shrink-0">
+              ${item.id}
+            </span>
+            <div class="flex-grow space-y-3">
+              <p class="font-medium text-slate-800 text-sm sm:text-base leading-relaxed">${item.q}</p>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                ${item.options.map((opt, optIdx) => `
+                  <label class="flex items-start gap-3 p-3 rounded-xl bg-white border-2 border-slate-200 hover:border-skybrand-400 cursor-pointer transition has-[:checked]:border-skybrand-600 has-[:checked]:bg-sky-50">
+                    <input type="radio" name="mc_${item.id}" value="${optIdx}" onchange="updateProgress()"
+                      class="mt-1 w-4 h-4 text-skybrand-600 focus:ring-skybrand-500" />
+                    <span class="text-sm text-slate-700 leading-snug">
+                      <strong class="text-skybrand-700 mr-1">${letters[optIdx]}.</strong> ${opt}
+                    </span>
+                  </label>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // 2. Render Isian Singkat
+      const fillContainer = document.getElementById('fill-questions-container');
+      fillContainer.innerHTML = fillQuestions.map((item) => {
+        let visualHtml = '';
+        if (item.illustration === 'timeline') {
+          visualHtml = `
+            <div class="my-2 p-3 bg-white rounded-xl border border-slate-300 inline-flex items-center gap-2 shadow-inner">
+              ${[1, 2, 3, 4].map((f) => `
+                <div class="w-16 h-20 border-2 border-slate-300 rounded-lg bg-slate-50 flex flex-col items-center justify-between p-1">
+                  <svg width="36" height="44" viewBox="0 0 40 50">
+                    <circle cx="20" cy="10" r="4" fill="#1e293b"/>
+                    <line x1="20" y1="14" x2="20" y2="30" stroke="#1e293b" stroke-width="2.5"/>
+                    <line x1="20" y1="18" x2="${f % 2 === 0 ? 12 : 10}" y2="${f % 2 === 0 ? 26 : 15}" stroke="#1e293b" stroke-width="2.5"/>
+                    <line x1="20" y1="18" x2="${f % 2 === 0 ? 28 : 30}" y2="${f % 2 === 0 ? 26 : 15}" stroke="#1e293b" stroke-width="2.5"/>
+                    <line x1="20" y1="30" x2="13" y2="44" stroke="#1e293b" stroke-width="2.5"/>
+                    <line x1="20" y1="30" x2="27" y2="44" stroke="#1e293b" stroke-width="2.5"/>
+                  </svg>
+                  <span class="text-[10px] font-bold text-slate-400">${f}</span>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        } else if (item.illustration === 'addfigure') {
+          visualHtml = `
+            <div class="my-2 inline-block">
+              <div class="px-5 py-2 bg-slate-200 border-2 border-slate-400 rounded-md shadow-sm font-sans text-sm font-semibold text-slate-800 select-none">
+                Add Figure
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="p-4 sm:p-5 rounded-2xl bg-emerald-50/50 border border-emerald-200">
+            <div class="flex gap-3">
+              <span class="w-8 h-8 rounded-xl bg-emerald-600 text-white font-display font-bold text-sm flex items-center justify-center flex-shrink-0">
+                ${item.id}
+              </span>
+              <div class="flex-grow space-y-2">
+                <p class="font-medium text-slate-800 text-sm sm:text-base">${item.q}</p>
+                ${visualHtml}
+                <input type="text" id="fill_${item.id}" oninput="updateProgress()"
+                  placeholder="Ketik jawaban singkatmu di sini..."
+                  class="w-full sm:max-w-md px-4 py-2.5 rounded-xl bg-white border-2 border-emerald-200 focus:border-emerald-500 focus:outline-none text-sm font-medium text-slate-800" />
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // 3. Render Uraian Kreatif
+      const essayContainer = document.getElementById('essay-questions-container');
+      essayContainer.innerHTML = essayQuestions.map((item) => `
+        <div class="p-4 sm:p-5 rounded-2xl bg-purple-50/50 border border-purple-200">
+          <div class="flex gap-3">
+            <span class="w-8 h-8 rounded-xl bg-purple-600 text-white font-display font-bold text-sm flex items-center justify-center flex-shrink-0">
+              ${item.id}
+            </span>
+            <div class="flex-grow space-y-2.5">
+              <p class="font-medium text-slate-800 text-sm sm:text-base whitespace-pre-line leading-relaxed">${item.q}</p>
+              <textarea id="essay_${item.id}" rows="3" oninput="updateProgress()"
+                placeholder="Tuliskan penjelasan lengkapmu di sini..."
+                class="w-full px-4 py-3 rounded-xl bg-white border-2 border-purple-200 focus:border-purple-500 focus:outline-none text-sm text-slate-800"></textarea>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ==================== UPDATE PROGRES PENGERJAAN ====================
+    window.updateProgress = function () {
+      let answered = 0;
+      mcQuestions.forEach((item) => {
+        if (document.querySelector(`input[name="mc_${item.id}"]:checked`)) answered++;
+      });
+      fillQuestions.forEach((item) => {
+        const val = document.getElementById(`fill_${item.id}`)?.value.trim();
+        if (val) answered++;
+      });
+      essayQuestions.forEach((item) => {
+        const val = document.getElementById(`essay_${item.id}`)?.value.trim();
+        if (val) answered++;
+      });
+
+      const total = mcQuestions.length + fillQuestions.length + essayQuestions.length;
+      const pct = Math.round((answered / total) * 100);
+      document.getElementById('progress-text').textContent = `${answered} / ${total} Soal Terisi (${pct}%)`;
+      document.getElementById('progress-bar').style.width = `${pct}%`;
+    };
+
+    // ==================== PENILAIAN OTOMATIS & SUBMIT SISWA ====================
+    window.submitLKPD = async function () {
+      const name = document.getElementById('student-name').value.trim();
+      const number = document.getElementById('student-number').value.trim();
+      const selectedClassEl = document.querySelector('input[name="student-class"]:checked');
+      const studentClass = selectedClassEl ? selectedClassEl.value : '4A';
+
+      if (!name || !number) {
+        showToast("Mohon isi Nama Lengkap dan Nomor Absen terlebih dahulu!", "error");
+        document.getElementById('student-name').focus();
+        return;
+      }
+
+      // Cek apakah ada soal yang belum diisi (peringatan ringan, tetap boleh lanjut jika dikonfirmasi via tombol kedua atau pastikan terisi)
+      let unansweredCount = 0;
+      mcQuestions.forEach((q) => {
+        if (!document.querySelector(`input[name="mc_${q.id}"]:checked`)) unansweredCount++;
+      });
+      fillQuestions.forEach((q) => {
+        if (!document.getElementById(`fill_${q.id}`).value.trim()) unansweredCount++;
+      });
+      essayQuestions.forEach((q) => {
+        if (!document.getElementById(`essay_${q.id}`).value.trim()) unansweredCount++;
+      });
+
+      if (unansweredCount > 0) {
+        showToast(`Masih ada ${unansweredCount} soal yang belum dijawab. Lengkapi semua soal dulu ya!`, "warning");
+        return;
+      }
+
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span>⏳</span> Sedang Menghitung & Menyimpan...`;
+
+      // 1. Nilai Pilihan Ganda (20 soal -> Bobot 40 poin, @2 poin)
+      let mcCorrect = 0;
+      const mcAnswers = [];
+      mcQuestions.forEach((q) => {
+        const selected = document.querySelector(`input[name="mc_${q.id}"]:checked`);
+        const chosenIdx = selected ? parseInt(selected.value, 10) : -1;
+        const isCorrect = chosenIdx === q.answer;
+        if (isCorrect) mcCorrect++;
+        mcAnswers.push({ id: q.id, chosen: chosenIdx, correct: q.answer, isCorrect });
+      });
+      const mcScore = mcCorrect * 2; // Max 40
+
+      // 2. Nilai Isian Singkat (10 soal -> Bobot 30 poin, @3 poin)
+      let fillCorrect = 0;
+      const fillAnswers = [];
+      fillQuestions.forEach((q) => {
+        const rawVal = document.getElementById(`fill_${q.id}`).value.trim();
+        const lowerVal = rawVal.toLowerCase();
+        const isCorrect = q.keywords.some((kw) => lowerVal.includes(kw.toLowerCase()));
+        if (isCorrect) fillCorrect++;
+        fillAnswers.push({ id: q.id, answer: rawVal, isCorrect, sampleAnswer: q.sampleAnswer });
+      });
+      const fillScore = fillCorrect * 3; // Max 30
+
+      // 3. Nilai Uraian Kreatif (5 soal -> Bobot 30 poin, @6 poin berdasarkan pencocokan kata kunci rubrik)
+      let essayTotalPoints = 0;
+      const essayAnswers = [];
+      essayQuestions.forEach((q) => {
+        const rawVal = document.getElementById(`essay_${q.id}`).value.trim();
+        const lowerVal = rawVal.toLowerCase();
+        let matchedKeywords = 0;
+        q.keywords.forEach((kw) => {
+          if (lowerVal.includes(kw.toLowerCase())) matchedKeywords++;
+        });
+
+        let pts = 0;
+        if (rawVal.length >= 10) {
+          if (matchedKeywords >= 3) pts = 6;
+          else if (matchedKeywords === 2) pts = 5;
+          else if (matchedKeywords === 1) pts = 4;
+          else pts = 3; // Usaha menjawab relevan
+        } else if (rawVal.length > 0) {
+          pts = 2;
+        }
+        essayTotalPoints += pts;
+        essayAnswers.push({ id: q.id, answer: rawVal, score: pts, maxScore: 6 });
+      });
+
+      const totalScore = Math.round(mcScore + fillScore + essayTotalPoints);
+
+      const submissionPayload = {
+        studentName: name,
+        studentNumber: number.padStart(2, '0'),
+        studentClass: studentClass,
+        mcCorrect,
+        mcScore,
+        fillCorrect,
+        fillScore,
+        essayScore: essayTotalPoints,
+        totalScore,
+        mcAnswers,
+        fillAnswers,
+        essayAnswers,
+        submittedAt: new Date().toISOString()
+      };
+
+      // Simpan ke Firestore
+      let savedToCloud = false;
+      try {
+        if (db && currentUser) {
+          const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'lkpd_submissions');
+          await addDoc(colRef, {
+            ...submissionPayload,
+            createdAtServer: serverTimestamp()
+          });
+          savedToCloud = true;
+        } else {
+          submissionsList.push({ id: 'local_' + Date.now(), ...submissionPayload });
+        }
+      } catch (err) {
+        console.error("Gagal menyimpan ke Firestore:", err);
+        submissionsList.push({ id: 'local_' + Date.now(), ...submissionPayload });
+      }
+
+      // Tampilkan Kartu Hasil Siswa
+      displayStudentResult(submissionPayload, savedToCloud);
+
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<span>🚀</span> Kirim Jawaban & Lihat Nilai`;
+      showToast("Hebat! Jawabanmu sudah dinilai dan tersimpan!", "success");
+    };
+
+    function displayStudentResult(data, savedToCloud) {
+      document.getElementById('student-form-container').classList.add('hidden');
+      const resContainer = document.getElementById('student-result-container');
+      resContainer.classList.remove('hidden');
+
+      document.getElementById('res-name').textContent = data.studentName;
+      document.getElementById('res-meta').textContent = `No. Absen: ${data.studentNumber} • Kelas: ${data.studentClass}`;
+      document.getElementById('res-total-score').textContent = data.totalScore;
+
+      document.getElementById('res-mc-detail').textContent = `${data.mcCorrect} / 20 Benar`;
+      document.getElementById('res-mc-points').textContent = `Skor: ${data.mcScore} / 40`;
+
+      document.getElementById('res-fill-detail').textContent = `${data.fillCorrect} / 10 Benar`;
+      document.getElementById('res-fill-points').textContent = `Skor: ${data.fillScore} / 30`;
+
+      document.getElementById('res-essay-detail').textContent = `5 Soal Uraian`;
+      document.getElementById('res-essay-points').textContent = `Skor Otomatis: ${data.essayScore} / 30`;
+
+      const statusEl = document.getElementById('res-save-status');
+      statusEl.innerHTML = savedToCloud
+        ? `<span>✅</span> Nilai sudah tersimpan otomatis di Dashboard Guru!`
+        : `<span>💾</span> Nilai tersimpan pada sesi ini.`;
+
+      // Render Pembahasan
+      const letters = ['A', 'B', 'C', 'D'];
+      const reviewList = document.getElementById('res-review-list');
+      let html = '';
+
+      mcQuestions.forEach((q, idx) => {
+        const ans = data.mcAnswers[idx];
+        const badge = ans.isCorrect
+          ? `<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-xs font-bold">Benar ✓</span>`
+          : `<span class="px-2 py-0.5 rounded bg-red-100 text-red-800 text-xs font-bold">Kurang Tepat ✕</span>`;
+        html += `
+          <div class="p-3.5 rounded-xl border ${ans.isCorrect ? 'border-emerald-200 bg-emerald-50/40' : 'border-red-200 bg-red-50/40'} text-sm">
+            <div class="flex justify-between items-start gap-2">
+              <p class="font-semibold text-slate-800">PG ${q.id}. ${q.q}</p>
+              ${badge}
+            </div>
+            <p class="text-xs text-slate-600 mt-1">
+              Jawabanmu: <strong>${ans.chosen >= 0 ? letters[ans.chosen] + '. ' + q.options[ans.chosen] : '-'}</strong> |
+              Kunci: <strong class="text-emerald-700">${letters[q.answer]}. ${q.options[q.answer]}</strong>
+            </p>
+            <p class="text-xs text-slate-500 mt-1 italic">💡 ${q.explanation}</p>
+          </div>
+        `;
+      });
+
+      fillQuestions.forEach((q, idx) => {
+        const ans = data.fillAnswers[idx];
+        const badge = ans.isCorrect
+          ? `<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-xs font-bold">Benar ✓</span>`
+          : `<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-xs font-bold">Periksa Kunci</span>`;
+        html += `
+          <div class="p-3.5 rounded-xl border ${ans.isCorrect ? 'border-emerald-200 bg-emerald-50/40' : 'border-amber-200 bg-amber-50/40'} text-sm">
+            <div class="flex justify-between items-start gap-2">
+              <p class="font-semibold text-slate-800">Isian ${q.id}. ${q.q}</p>
+              ${badge}
+            </div>
+            <p class="text-xs text-slate-600 mt-1">
+              Jawabanmu: <strong>${ans.answer}</strong> | Kunci Jawaban: <strong class="text-emerald-700">${q.sampleAnswer}</strong>
+            </p>
+          </div>
+        `;
+      });
+
+      essayQuestions.forEach((q, idx) => {
+        const ans = data.essayAnswers[idx];
+        html += `
+          <div class="p-3.5 rounded-xl border border-purple-200 bg-purple-50/40 text-sm">
+            <div class="flex justify-between items-start gap-2">
+              <p class="font-semibold text-slate-800">Uraian ${q.id}. ${q.q.split('\n')[0]}</p>
+              <span class="px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-xs font-bold">Skor: ${ans.score}/6</span>
+            </div>
+            <p class="text-xs text-slate-700 mt-1"><strong>Jawabanmu:</strong> ${ans.answer}</p>
+            <p class="text-xs text-purple-800 mt-1 bg-white p-2 rounded-lg border border-purple-100"><strong>Rubrik Jawaban Ideal:</strong> ${q.rubric}</p>
+          </div>
+        `;
+      });
+
+      reviewList.innerHTML = html;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    window.resetForNewStudent = function () {
+      document.getElementById('student-name').value = '';
+      document.getElementById('student-number').value = '';
+      const defaultClassRadio = document.querySelector('input[name="student-class"][value="4A"]');
+      if (defaultClassRadio) defaultClassRadio.checked = true;
+      document.querySelectorAll('input[type="radio"]:not([name="student-class"])').forEach((r) => (r.checked = false));
+      fillQuestions.forEach((q) => (document.getElementById(`fill_${q.id}`).value = ''));
+      essayQuestions.forEach((q) => (document.getElementById(`essay_${q.id}`).value = ''));
+      updateProgress();
+
+      document.getElementById('student-result-container').classList.add('hidden');
+      document.getElementById('student-form-container').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // ==================== NAVIGASI TAB & DASHBOARD GURU ====================
+    window.switchMode = function (mode) {
+      const btnStudent = document.getElementById('tab-btn-student');
+      const btnTeacher = document.getElementById('tab-btn-teacher');
+      const viewStudent = document.getElementById('view-student');
+      const viewTeacher = document.getElementById('view-teacher');
+
+      if (mode === 'student') {
+        viewStudent.classList.remove('hidden');
+        viewTeacher.classList.add('hidden');
+        btnStudent.className = "flex items-center gap-2 px-4 py-2.5 rounded-xl font-display font-semibold text-sm transition-all bg-sunbrand-400 text-skybrand-900 shadow";
+        btnTeacher.className = "flex items-center gap-2 px-4 py-2.5 rounded-xl font-display font-semibold text-sm transition-all text-white hover:bg-skybrand-700";
+      } else {
+        viewStudent.classList.add('hidden');
+        viewTeacher.classList.remove('hidden');
+        btnTeacher.className = "flex items-center gap-2 px-4 py-2.5 rounded-xl font-display font-semibold text-sm transition-all bg-sunbrand-400 text-skybrand-900 shadow";
+        btnStudent.className = "flex items-center gap-2 px-4 py-2.5 rounded-xl font-display font-semibold text-sm transition-all text-white hover:bg-skybrand-700";
+        if (isTeacherLoggedIn) {
+          renderTeacherTable();
+        }
+      }
+    };
+
+    window.verifyTeacherPin = function () {
+      const pin = document.getElementById('teacher-pin-input').value.trim();
+      if (pin === '1234') {
+        isTeacherLoggedIn = true;
+        document.getElementById('teacher-login-box').classList.add('hidden');
+        document.getElementById('teacher-dashboard-panel').classList.remove('hidden');
+        renderTeacherTable();
+        showToast("Selamat datang di Dashboard Guru!", "success");
+      } else {
+        showToast("PIN salah! Gunakan PIN default: 1234", "error");
+      }
+    };
+
+    window.logoutTeacher = function () {
+      isTeacherLoggedIn = false;
+      document.getElementById('teacher-pin-input').value = '';
+      document.getElementById('teacher-dashboard-panel').classList.add('hidden');
+      document.getElementById('teacher-login-box').classList.remove('hidden');
+    };
+
+    window.renderTeacherTable = function () {
+      const searchQuery = (document.getElementById('teacher-search')?.value || '').toLowerCase();
+      const classFilter = document.getElementById('teacher-filter-class')?.value || 'ALL';
+
+      const filtered = submissionsList.filter((item) => {
+        const matchSearch =
+          (item.studentName || '').toLowerCase().includes(searchQuery) ||
+          (item.studentNumber || '').toString().includes(searchQuery);
+        const matchClass = classFilter === 'ALL' || item.studentClass === classFilter;
+        return matchSearch && matchClass;
+      });
+
+      // Update Statistik
+      const total = filtered.length;
+      const avg = total > 0 ? Math.round(filtered.reduce((acc, cur) => acc + (cur.totalScore || 0), 0) / total) : 0;
+      const max = total > 0 ? Math.max(...filtered.map((s) => s.totalScore || 0)) : 0;
+      const passed = filtered.filter((s) => (s.totalScore || 0) >= 75).length;
+
+      document.getElementById('stat-total-students').textContent = total;
+      document.getElementById('stat-avg-score').textContent = avg;
+      document.getElementById('stat-max-score').textContent = max;
+      document.getElementById('stat-passed-count').textContent = `${passed} / ${total}`;
+
+      const tbody = document.getElementById('teacher-table-body');
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="p-8 text-center text-slate-500">
+              Belum ada data nilai siswa yang masuk${classFilter !== 'ALL' ? ' pada kelas ini' : ''}.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map((item) => {
+        const scoreBadge = item.totalScore >= 75
+          ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+          : 'bg-amber-100 text-amber-800 border-amber-300';
+        return `
+          <tr class="hover:bg-sky-50/60 transition">
+            <td class="p-3.5 font-bold text-slate-700">${item.studentNumber}</td>
+            <td class="p-3.5 font-semibold text-slate-800">${item.studentName}</td>
+            <td class="p-3.5 text-slate-600">${item.studentClass}</td>
+            <td class="p-3.5 text-center font-medium text-blue-700">${item.mcScore} <span class="text-xs text-slate-400">(${item.mcCorrect}/20)</span></td>
+            <td class="p-3.5 text-center font-medium text-emerald-700">${item.fillScore} <span class="text-xs text-slate-400">(${item.fillCorrect}/10)</span></td>
+            <td class="p-3.5 text-center font-medium text-purple-700">${item.essayScore}</td>
+            <td class="p-3.5 text-center">
+              <span class="inline-block px-3 py-1 rounded-full font-display font-bold text-sm border ${scoreBadge}">
+                ${item.totalScore}
+              </span>
+            </td>
+            <td class="p-3.5 text-center no-print">
+              <div class="flex items-center justify-center gap-1.5">
+                <button onclick="openDetailModal('${item.id}')"
+                  class="px-3 py-1.5 rounded-lg bg-sky-100 hover:bg-sky-200 text-skybrand-800 font-semibold text-xs">
+                  Detail & Koreksi
+                </button>
+                <button onclick="deleteSubmission('${item.id}')"
+                  class="px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-xs" title="Hapus Data">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    };
+
+    // ==================== MODAL KOREKSI URAIAN GURU ====================
+    window.openDetailModal = function (docId) {
+      const item = submissionsList.find((s) => s.id === docId);
+      if (!item) return;
+      activeEditDocId = docId;
+
+      document.getElementById('modal-student-title').textContent = `${item.studentName} (Absen ${item.studentNumber})`;
+      document.getElementById('modal-student-sub').textContent = `Kelas: ${item.studentClass} • PG: ${item.mcScore}/40 • Isian: ${item.fillScore}/30`;
+
+      const body = document.getElementById('modal-body-content');
+      let html = `
+        <div class="bg-purple-50 border border-purple-200 rounded-2xl p-4">
+          <h4 class="font-display font-bold text-purple-900 text-base mb-1">Koreksi Bagian III: Uraian Kreatif (Maks. 6 poin per soal)</h4>
+          <p class="text-xs text-purple-700">Guru dapat menyesuaikan skor masing-masing soal uraian (0 – 6) berdasarkan kualitas jawaban siswa.</p>
+        </div>
+      `;
+
+      essayQuestions.forEach((q, idx) => {
+        const ansObj = (item.essayAnswers && item.essayAnswers[idx]) || { answer: '-', score: 0 };
+        html += `
+          <div class="p-4 rounded-2xl border border-slate-200 bg-white space-y-2">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <p class="font-bold text-slate-800 text-sm">Soal Uraian ${q.id}</p>
+              <div class="flex items-center gap-2 bg-purple-100 px-3 py-1.5 rounded-xl">
+                <label class="text-xs font-bold text-purple-900">Skor Guru (0-6):</label>
+                <input type="number" min="0" max="6" step="1" value="${ansObj.score}"
+                  data-essay-idx="${idx}" oninput="recalcModalTotal()"
+                  class="essay-score-input w-16 px-2 py-1 rounded-lg border border-purple-300 text-center font-bold text-sm bg-white" />
+              </div>
+            </div>
+            <p class="text-xs text-slate-500">${q.q.split('\n')[0]}</p>
+            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-800">
+              <strong>Jawaban Siswa:</strong><br/>${ansObj.answer || '<em>(Tidak dijawab)</em>'}
+            </div>
+            <p class="text-xs text-emerald-700"><strong>Rubrik:</strong> ${q.rubric}</p>
+          </div>
+        `;
+      });
+
+      body.innerHTML = html;
+      recalcModalTotal();
+      document.getElementById('detail-modal').classList.remove('hidden');
+    };
+
+    window.recalcModalTotal = function () {
+      const item = submissionsList.find((s) => s.id === activeEditDocId);
+      if (!item) return;
+      let essaySum = 0;
+      document.querySelectorAll('.essay-score-input').forEach((inp) => {
+        let v = parseInt(inp.value, 10);
+        if (isNaN(v) || v < 0) v = 0;
+        if (v > 6) v = 6;
+        essaySum += v;
+      });
+      const newTotal = (item.mcScore || 0) + (item.fillScore || 0) + essaySum;
+      document.getElementById('modal-live-total').textContent = newTotal;
+    };
+
+    window.saveTeacherCorrection = async function () {
+      const item = submissionsList.find((s) => s.id === activeEditDocId);
+      if (!item) return;
+
+      const updatedEssayAnswers = [...(item.essayAnswers || [])];
+      let essaySum = 0;
+      document.querySelectorAll('.essay-score-input').forEach((inp) => {
+        const idx = parseInt(inp.getAttribute('data-essay-idx'), 10);
+        let v = parseInt(inp.value, 10);
+        if (isNaN(v) || v < 0) v = 0;
+        if (v > 6) v = 6;
+        if (updatedEssayAnswers[idx]) {
+          updatedEssayAnswers[idx].score = v;
+        }
+        essaySum += v;
+      });
+
+      const newTotal = (item.mcScore || 0) + (item.fillScore || 0) + essaySum;
+
+      try {
+        if (db && currentUser && !item.id.startsWith('local_')) {
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'lkpd_submissions', item.id);
+          await updateDoc(docRef, {
+            essayAnswers: updatedEssayAnswers,
+            essayScore: essaySum,
+            totalScore: newTotal
+          });
+        } else {
+          item.essayAnswers = updatedEssayAnswers;
+          item.essayScore = essaySum;
+          item.totalScore = newTotal;
+          renderTeacherTable();
+        }
+        showToast("Perubahan nilai berhasil disimpan!", "success");
+        closeDetailModal();
+      } catch (err) {
+        console.error("Gagal update skor:", err);
+        showToast("Gagal menyimpan perubahan nilai.", "error");
+      }
+    };
+
+    window.closeDetailModal = function () {
+      document.getElementById('detail-modal').classList.add('hidden');
+      activeEditDocId = null;
+    };
+
+    window.deleteSubmission = async function (docId) {
+      try {
+        if (db && currentUser && !docId.startsWith('local_')) {
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'lkpd_submissions', docId);
+          await deleteDoc(docRef);
+        } else {
+          submissionsList = submissionsList.filter((s) => s.id !== docId);
+          renderTeacherTable();
+        }
+        showToast("Data siswa telah dihapus.", "success");
+      } catch (err) {
+        console.error("Gagal menghapus data:", err);
+        showToast("Gagal menghapus data siswa.", "error");
+      }
+    };
+
+    // ==================== EKSPOR REKAP KE CSV / EXCEL ====================
+    window.exportToCSV = function () {
+      if (submissionsList.length === 0) {
+        showToast("Belum ada data siswa untuk diekspor.", "warning");
+        return;
+      }
+
+      const headers = [
+        "No Absen",
+        "Nama Lengkap",
+        "Kelas",
+        "PG Benar (dari 20)",
+        "Skor PG (40)",
+        "Isian Benar (dari 10)",
+        "Skor Isian (30)",
+        "Skor Uraian (30)",
+        "Nilai Akhir (100)",
+        "Waktu Kirim"
+      ];
+
+      const rows = submissionsList.map((s) => [
+        `"${s.studentNumber}"`,
+        `"${(s.studentName || '').replace(/"/g, '""')}"`,
+        `"${s.studentClass}"`,
+        s.mcCorrect,
+        s.mcScore,
+        s.fillCorrect,
+        s.fillScore,
+        s.essayScore,
+        s.totalScore,
+        `"${s.submittedAt || ''}"`
+      ]);
+
+      const csvContent = "\uFEFF" + [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Rekap_Nilai_Informatika_Kelas4_SD_Lentera.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      showToast("File rekap nilai CSV berhasil diunduh!", "success");
+    };
+
+    // ==================== CUSTOM TOAST NOTIFICATION ====================
+    window.showToast = function (message, type = "info") {
+      const container = document.getElementById('toast-container');
+      const colors = {
+        success: "bg-emerald-600 text-white border-emerald-400",
+        error: "bg-red-600 text-white border-red-400",
+        warning: "bg-amber-500 text-slate-950 border-amber-300",
+        info: "bg-skybrand-700 text-white border-sky-400"
+      };
+      const icons = { success: "✅", error: "⚠️", warning: "💡", info: "ℹ️" };
+
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-lg border-2 font-medium text-sm flex items-center gap-2.5 transition-all duration-300 ${colors[type] || colors.info}`;
+      toast.innerHTML = `<span>${icons[type] || icons.info}</span><span>${message}</span>`;
+
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    };
+
+    // Jalankan inisialisasi saat halaman dimuat
+    window.addEventListener('DOMContentLoaded', () => {
+      renderAllQuestions();
+      initFirebase();
+    });
+  </script>
+</body>
+</html>
